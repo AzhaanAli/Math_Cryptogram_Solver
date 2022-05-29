@@ -1,13 +1,10 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /*
     TODO:
         - EFFICIENCY FIXES (minimizing known false possible solutions):
-            - A way to add interval min max constraints for every placeholder.
-            - No frontal zero rule.
+            - Maybe create unique blacklist arrays that are passed down and modified though each generation branch.
+            - No even/ odd values (uncovered by equation formation and solving).
             - Compute max and min values for certain indices.
             - Let the number of inputs be x:
                 - If inputs and outputs are of equal length, then allowed interval of the first character of the
@@ -37,20 +34,37 @@ public class Main {
     public static String output;
     public static ArrayList<Character> uniqueCharacters;
 
+    public static String[] blacklistValues;
+
 
     // ---------------------------------- //
     // Main method.
 
     public static void main(String[] args) {
 
-        initializeGlobals(
-                new String[]{
-                        "EUROPA",
-                        "JUPITER",
-                },
-                "NEPTUNE"
-        );
-        generatePossibleSolutions("", uniqueCharacters.size());
+        // Old approach --> 10293 milliseconds taken.
+        // Frontal Zeros --> 5100 milliseconds taken.
+
+        int rounds = 5;
+        long elapsed = -System.currentTimeMillis() * rounds;
+
+        for(int i = 0; i < rounds; i++)
+        {
+            initializeGlobals(
+                    new String[]{
+                            "EUROPA",
+                            "JUPITER",
+                    },
+                    "NEPTUNE"
+            );
+            generatePossibleSolutions();
+
+            elapsed += System.currentTimeMillis();
+        }
+        elapsed /= rounds;
+
+        System.out.println(elapsed + " milliseconds taken.");
+
 
     }
 
@@ -65,23 +79,59 @@ public class Main {
         output = output_param;
         uniqueCharacters = getUniqueCharacterArray(inputs, output);
 
+        initializeBlacklist();
+        setBlacklistValues(inputs_param, output_param);
+
+    }
+    public static void initializeBlacklist(){
+
+        blacklistValues = new String[uniqueCharacters.size()];
+        Arrays.fill(blacklistValues, "");
+
+    }
+
+    // Applies all blacklist rules to the list.
+    public static void setBlacklistValues(String[] inputs_param, String output_param){
+
+        blackListFrontalZeros(inputs_param, output_param);
+
+    }
+
+    // Makes it so the leading placeholders of numbers are not considered to be 0.
+    public static void blackListFrontalZeros(String[] inputs_param, String output_param){
+
+        // Add zero to all the blacklists of frontal input characters.
+        for(String input : inputs_param)
+        {
+            int index = uniqueCharacters.indexOf(input.charAt(0));
+            blacklistValues[index] += "0";
+        }
+
+        // Add zero to all the blacklist of frontal output character.
+        int index = uniqueCharacters.indexOf(output_param.charAt(0));
+        blacklistValues[index] += "0";
+
     }
 
     // Search though every possible solution, and evaluate each.
     // The evaluation function will check whether the solution is valid, and if it is, will print it.
     public static void generatePossibleSolutions(String curr, int length){
 
+        int solutionLength = curr.length();
+
         // If a possible solution is fully built, stop the recursion and pass it in to the eval function.
         // Otherwise, keep developing new possible solutions.
-        if(curr.length() == length)
+        if(solutionLength == length)
             evalPossibleSolution(curr);
         else
             // Only loop from 0 to 9, as each placeholder can only represent a one-digit number.
-            for(int i = 0; i <= 9; i++)
+            for(int i = 0; i <= 9; i++) {
                 // If the possible solution already contains a value, then there is no need to add it again.
                 // This is because it is redundant for two placeholders to equal each other, thus we assume they don't.
-                if(!curr.contains(String.valueOf(i)))
+                String strVal = String.valueOf(i);
+                if (!curr.contains(strVal) && !blacklistValues[solutionLength].contains(strVal))
                     generatePossibleSolutions(curr + i, length);
+            }
 
     }
     public static void evalPossibleSolution(String mapKey){
@@ -102,6 +152,12 @@ public class Main {
         // If the total equals the outputs total, print the solution.
         if(total == stringToNum(output, key))
             System.out.println(key);
+
+    }
+    // Recursive base-call function.
+    public static void generatePossibleSolutions(){
+
+        generatePossibleSolutions("", uniqueCharacters.size());
 
     }
 
