@@ -45,34 +45,25 @@ public class Main {
         // Old approach --> 10293 milliseconds taken.
         // Frontal Zeros --> 5100 milliseconds taken.
 
-//        int rounds = 5;
-//        long elapsed = -System.currentTimeMillis() * rounds;
-//
-//        for(int i = 0; i < rounds; i++)
-//        {
-//            initializeGlobals(
-//                    new String[]{
-//                            "EUROPA",
-//                            "JUPITER",
-//                    },
-//                    "NEPTUNE"
-//            );
-//            generatePossibleSolutions();
-//
-//            elapsed += System.currentTimeMillis();
-//        }
-//        elapsed /= rounds;
-//
-//        System.out.println(elapsed + " milliseconds taken.");
+        int rounds = 5;
+        long elapsed = -System.currentTimeMillis() * rounds;
 
+        for(int i = 0; i < rounds; i++)
+        {
             initializeGlobals(
                     new String[]{
-                            "BANJO",
-                            "VIOLA",
+                            "EUROPA",
+                            "JUPITER",
                     },
-                    "VIOLIN"
+                    "NEPTUNE"
             );
             generatePossibleSolutions();
+
+            elapsed += System.currentTimeMillis();
+        }
+        elapsed /= rounds;
+
+        System.out.println(elapsed + " milliseconds taken.");
 
 
     }
