@@ -3,6 +3,30 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/*
+    TODO:
+        - EFFICIENCY FIXES (minimizing known false possible solutions):
+            - A way to add interval min max constraints for every placeholder.
+            - No frontal zero rule.
+            - Compute max and min values for certain indices.
+            - Let the number of inputs be x:
+                - If inputs and outputs are of equal length, then allowed interval of the first character of the
+                  output is [x(x + 1) / 2, 9].
+                - If the outputs length is greater than the inputs length by a digit, then the maximum value
+                  of the outputs first character can be calculated by a descending sum starting from 9, whose
+                  length is equal to x. For example if x is 4, the resultant sum would be 9 + 8 + 7 + 6.
+                  This example sum equals to 30, thus the maximum value of the outputs first character is 3.
+        - User friendly improvements:
+            - Abstract more unnecessary methods and code.
+            - Replace methods within main method with easier to understand, use, and easier to look at code.
+            - A more user intuitive method of passing the puzzles data into the program.
+        - Messages for when a puzzle has no solution:
+            - Actually do something when theres no solution (at the moment nothing is done).
+            - If possible, print a reason for why no solution is possible.
+        - Allow inputs and outputs to be expressed with numbers as well as letters.
+            - Prevent numbers from showing up as potential values of placeholders in permutation method.
+*/
+
 public class Main {
 
 
@@ -18,7 +42,6 @@ public class Main {
     // Main method.
 
     public static void main(String[] args) {
-
 
         initializeGlobals(
                 new String[]{
