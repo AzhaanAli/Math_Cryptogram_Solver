@@ -27,7 +27,7 @@ public class Main {
                 },
                 "NEPTUNE"
         );
-        evalPermutations("", uniqueCharacters.size());
+        generatePossibleSolutions("", uniqueCharacters.size());
 
     }
 
@@ -46,23 +46,29 @@ public class Main {
 
     // Search though every possible solution, and evaluate each.
     // The evaluation function will check whether the solution is valid, and if it is, will print it.
-    public static void evalPermutations(String curr, int length){
+    public static void generatePossibleSolutions(String curr, int length){
 
+        // If a possible solution is fully built, stop the recursion and pass it in to the eval function.
+        // Otherwise, keep developing new possible solutions.
         if(curr.length() == length)
-            evalContender(curr);
+            evalPossibleSolution(curr);
         else
+            // Only loop from 0 to 9, as each placeholder can only represent a one-digit number.
             for(int i = 0; i <= 9; i++)
+                // If the possible solution already contains a value, then there is no need to add it again.
+                // This is because it is redundant for two placeholders to equal each other, thus we assume they don't.
                 if(!curr.contains(String.valueOf(i)))
-                    evalPermutations(curr + i, length);
+                    generatePossibleSolutions(curr + i, length);
 
     }
-    public static void evalContender(String mapKey){
+    public static void evalPossibleSolution(String mapKey){
 
         char[] asArr = mapKey.toCharArray();
         HashMap<Character, Integer> key = new HashMap<>();
 
         // Assign proper variables to the key HashMap.
         for(int i = 0; i < mapKey.length(); i++)
+            // Subtract 48 from asArr[i] to retrieve the char's numerical value.
             key.put(uniqueCharacters.get(i), asArr[i] - 48);
 
         // Compute the totals for the inputs with the following key.
