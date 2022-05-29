@@ -45,25 +45,34 @@ public class Main {
         // Old approach --> 10293 milliseconds taken.
         // Frontal Zeros --> 5100 milliseconds taken.
 
-        int rounds = 5;
-        long elapsed = -System.currentTimeMillis() * rounds;
+//        int rounds = 5;
+//        long elapsed = -System.currentTimeMillis() * rounds;
+//
+//        for(int i = 0; i < rounds; i++)
+//        {
+//            initializeGlobals(
+//                    new String[]{
+//                            "EUROPA",
+//                            "JUPITER",
+//                    },
+//                    "NEPTUNE"
+//            );
+//            generatePossibleSolutions();
+//
+//            elapsed += System.currentTimeMillis();
+//        }
+//        elapsed /= rounds;
+//
+//        System.out.println(elapsed + " milliseconds taken.");
 
-        for(int i = 0; i < rounds; i++)
-        {
             initializeGlobals(
                     new String[]{
-                            "EUROPA",
-                            "JUPITER",
+                            "BANJO",
+                            "VIOLA",
                     },
-                    "NEPTUNE"
+                    "VIOLIN"
             );
             generatePossibleSolutions();
-
-            elapsed += System.currentTimeMillis();
-        }
-        elapsed /= rounds;
-
-        System.out.println(elapsed + " milliseconds taken.");
 
 
     }
@@ -75,10 +84,12 @@ public class Main {
     // Neatly assign values to global variables.
     public static void initializeGlobals(String[] inputs_param, String output_param){
 
+        // Initialize inputs and outputs, and assign values to uniqueCharacters.
         inputs = inputs_param;
         output = output_param;
         uniqueCharacters = getUniqueCharacterArray(inputs, output);
 
+        // Initialize and assign values to the blacklists.
         initializeBlacklist();
         setBlacklistValues(inputs_param, output_param);
 
@@ -94,22 +105,44 @@ public class Main {
     public static void setBlacklistValues(String[] inputs_param, String output_param){
 
         blackListFrontalZeros(inputs_param, output_param);
+        blacklistKnownNumbers(inputs_param, output_param);
 
     }
 
     // Makes it so the leading placeholders of numbers are not considered to be 0.
     public static void blackListFrontalZeros(String[] inputs_param, String output_param){
 
-        // Add zero to all the blacklists of frontal input characters.
+        // Add zero to all blacklists of frontal input characters.
         for(String input : inputs_param)
-        {
-            int index = uniqueCharacters.indexOf(input.charAt(0));
-            blacklistValues[index] += "0";
-        }
+            blackListFrontalZero(input);
+        // Add zero to the blacklist of the frontal output character.
+        blackListFrontalZero(output_param);
 
-        // Add zero to all the blacklist of frontal output character.
-        int index = uniqueCharacters.indexOf(output_param.charAt(0));
+    }
+    public static void blackListFrontalZero(String str){
+
+        // Add zero to the first characters blacklist.
+        int index = uniqueCharacters.indexOf(str.charAt(0));
         blacklistValues[index] += "0";
+
+    }
+
+    // Makes it so all characters contain blacklists for numbers that are already known.
+    public static void blacklistKnownNumbers(String[] inputs_param, String output_param){
+
+        // Blacklist known numbers within the inputs.
+        for(String input : inputs_param)
+            blacklistKnownNumber(input);
+        // Blacklist known numbers within the output.
+        blacklistKnownNumber(output_param);
+
+    }
+    public static void blacklistKnownNumber(String str){
+
+        for(char c : str.toCharArray())
+            if(charIsNumber(c))
+                for(int i = 0; i < blacklistValues.length; i++)
+                    blacklistValues[i] += c;
 
     }
 
@@ -124,14 +157,25 @@ public class Main {
         if(solutionLength == length)
             evalPossibleSolution(curr);
         else
-            // Only loop from 0 to 9, as each placeholder can only represent a one-digit number.
-            for(int i = 0; i <= 9; i++) {
-                // If the possible solution already contains a value, then there is no need to add it again.
-                // This is because it is redundant for two placeholders to equal each other, thus we assume they don't.
-                String strVal = String.valueOf(i);
-                if (!curr.contains(strVal) && !blacklistValues[solutionLength].contains(strVal))
-                    generatePossibleSolutions(curr + i, length);
-            }
+        {
+            // If the current value is a number rather than a placeholder,
+            // simply use it instead of generating solutions from the loop.
+            char c = uniqueCharacters.get(curr.length());
+            if (charIsNumber(c))
+                generatePossibleSolutions(curr + c, length);
+
+            else
+
+                // Otherwise, loop from 0 to 9, and branch new possible solutions.
+                for (int i = 0; i <= 9; i++)
+                {
+                    String strVal = String.valueOf(i);
+                    // If the possible solution already contains a value, then there is no need to add it again.
+                    // This is because it is redundant for two placeholders to equal each other, thus we assume they don't.
+                    if (!curr.contains(strVal) && !blacklistValues[solutionLength].contains(strVal))
+                        generatePossibleSolutions(curr + i, length);
+                }
+        }
 
     }
     public static void evalPossibleSolution(String mapKey){
@@ -207,6 +251,13 @@ public class Main {
         HashSet<Character> set = new HashSet<>();
         for(char c : string.toCharArray()) set.add(c);
         return set;
+
+    }
+
+    // Returns whether a character represents a value between 0 and 9.
+    public static boolean charIsNumber(char c){
+
+        return 48 <= c && c <= 57;
 
     }
 
