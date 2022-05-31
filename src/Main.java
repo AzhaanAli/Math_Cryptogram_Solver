@@ -42,8 +42,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Old approach --> 10293 milliseconds taken.
-        // Frontal Zeros --> 5100 milliseconds taken.
+        // Old approach  --> 0.0% speed increase.
+        // Frontal Zeros --> 50.45% speed increase.
+        // Blacklist implementation --> additional 55.72% speed increase.
 
         int rounds = 5;
         long elapsed = -System.currentTimeMillis() * rounds;
@@ -114,7 +115,7 @@ public class Main {
 
         // Add zero to the first characters blacklist.
         int index = uniqueCharacters.indexOf(str.charAt(0));
-        blacklistValues[index] += "0";
+        blacklistValues[index] += '0';
 
     }
 
@@ -132,7 +133,7 @@ public class Main {
 
         for(char c : str.toCharArray())
             if(charIsNumber(c))
-                for(int i = 0; i < blacklistValues.length; i++)
+                for (int i = 0; i < blacklistValues.length; i++)
                     blacklistValues[i] += c;
 
     }
@@ -154,16 +155,14 @@ public class Main {
             char c = uniqueCharacters.get(curr.length());
             if (charIsNumber(c))
                 generatePossibleSolutions(curr + c, length);
-
             else
-
                 // Otherwise, loop from 0 to 9, and branch new possible solutions.
                 for (int i = 0; i <= 9; i++)
                 {
-                    String strVal = String.valueOf(i);
+                    String asStr = String.valueOf(i);
                     // If the possible solution already contains a value, then there is no need to add it again.
                     // This is because it is redundant for two placeholders to equal each other, thus we assume they don't.
-                    if (!curr.contains(strVal) && !blacklistValues[solutionLength].contains(strVal))
+                    if (!curr.contains(asStr) && !blacklistValues[solutionLength].contains(asStr))
                         generatePossibleSolutions(curr + i, length);
                 }
         }
